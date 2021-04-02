@@ -296,7 +296,6 @@ public class Board {
      */
     private List<Pair> floodFillReveal(int x, int y)
     {
-
         // Visiting array
         int vis[][]=new int[height][width];
 
@@ -306,6 +305,7 @@ public class Board {
                 vis[i][j]=0;
             }
         }
+        // List of points that have been flood filled to be returned
         List<Pair> changedPoints =  new ArrayList<>();
 
         // Creating queue for bfs
@@ -317,7 +317,6 @@ public class Board {
 
         // Marking {x, y} as visited
         vis[y][x] = 1;
-        changedPoints.add(pq);
 
         // Until queue is empty
         while (!obj.isEmpty())
@@ -326,50 +325,42 @@ public class Board {
             Pair coord = obj.peek();
             int x1 = coord.first;
             int y1 = coord.second;
-            //int preColor = data[x1][y1];
 
             cells[y1][x1].reveal();
+            changedPoints.add(coord);
 
             // Poping front pair of queue
             obj.remove();
 
             // For Upside Pixel or Cell
-            if (validCoord(x1 + 1, y1) && vis[y1][x1 + 1] == 0 && !cells[y1][x1 + 1].getIsRevealed() && cells[y1][x1 + 1].getNeighbours() == 0)
-            {
-                Pair p=new Pair(x1 +1, y1);
-                obj.add(p);
-                vis[y1][x1 + 1] = 1;
-                changedPoints.add(p);
-            }
-
+            checkFloodFillToCell(new Pair(x1+1,y1),vis,obj);
             // For Downside Pixel or Cell
-            if (validCoord(x1 - 1, y1) && vis[y1][x1 - 1] == 0 && !cells[y1][x1 - 1].getIsRevealed() && cells[y1][x1 - 1].getNeighbours() == 0)
-            {
-                Pair p=new Pair(x1-1,y1);
-                obj.add(p);
-                vis[y1][x1- 1] = 1;
-                changedPoints.add(p);
-            }
-
+            checkFloodFillToCell(new Pair(x1-1,y1),vis,obj);
             // For Right side Pixel or Cell
-            if (validCoord(x1, y1 + 1) && vis[y1 + 1][x1] == 0 && !cells[y1 + 1][x1].getIsRevealed() && cells[y1 + 1][x1].getNeighbours() == 0)
-            {
-                Pair p=new Pair(x1,y1 +1);
-                obj.add(p);
-                vis[y1 + 1][x1] = 1;
-                changedPoints.add(p);
-            }
-
+            checkFloodFillToCell(new Pair(x1,y1+1),vis,obj);
             // For Left side Pixel or Cell
-            if (validCoord(x1, y1 - 1) && vis[y1 - 1][x1] == 0 && !cells[y1 - 1][x1].getIsRevealed() && cells[y1 - 1][x1].getNeighbours() == 0)
-            {
-                Pair p=new Pair(x1,y1 -1);
-                obj.add(p);
-                vis[y1 - 1][x1] = 1;
-                changedPoints.add(p);
-            }
+            checkFloodFillToCell(new Pair(x1,y1-1),vis,obj);
         }
         return changedPoints;
+    }
+
+    /**
+     * Helper function for floodFillReveal(). Tests one Cell at position p.
+     * If the selected cell is valid coordinate, has not yet been visited,
+     * and is a valid element to reveal for the flood fill of all cells with 0 neighbours.
+     * Then it will add the cell as a new Cell to check neighbours of, and mark it as visited.
+     *
+     * @param p The position to check.
+     * @param vis The visited matrix indicating Cells that have already been checked.
+     * @param objQueue The queue of Cell positions to still check.
+     */
+    private void checkFloodFillToCell(Pair p, int[][] vis, Queue<Pair> objQueue) {
+        if (validCoord(p.first, p.second) && vis[p.second][p.first] == 0
+                && !cells[p.second][p.first].getIsRevealed() && cells[p.second][p.first].getNeighbours() == 0)
+        {
+            objQueue.add(p);
+            vis[p.second][p.first] = 1;
+        }
     }
 
     /**
